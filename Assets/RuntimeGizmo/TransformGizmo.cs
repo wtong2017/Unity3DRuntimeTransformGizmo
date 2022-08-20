@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 using System.Collections.Generic;
 using System.Collections;
 using CommandUndoRedo;
@@ -134,15 +135,21 @@ namespace RuntimeGizmos
 			SetMaterial();
 		}
 
+		private void RenderPipelineManager_endFrameRendering(ScriptableRenderContext context, Camera[] camera)
+		{
+			OnPostRender();
+		}
+
 		void OnEnable()
 		{
+			RenderPipelineManager.endFrameRendering += RenderPipelineManager_endFrameRendering;
 			forceUpdatePivotCoroutine = StartCoroutine(ForceUpdatePivotPointAtEndOfFrame());
 		}
 
 		void OnDisable()
 		{
 			ClearTargets(); //Just so things gets cleaned up, such as removing any materials we placed on objects.
-
+			RenderPipelineManager.endFrameRendering -= RenderPipelineManager_endFrameRendering;
 			StopCoroutine(forceUpdatePivotCoroutine);
 		}
 
